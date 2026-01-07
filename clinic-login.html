@@ -1,0 +1,176 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Login - CareToken</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+  </head>
+  <body class="bg-background flex items-center justify-center min-h-screen p-4 relative overflow-hidden">
+    
+    <!-- Toast Notification -->
+    <div id="toast" class="fixed top-5 right-5 bg-surface border border-border shadow-lg rounded-lg p-4 transform translate-x-full transition-transform duration-300 z-50 flex items-start max-w-sm">
+      <div class="flex-shrink-0 pt-0.5">
+        <svg class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      </div>
+      <div class="ml-3 w-0 flex-1">
+        <p class="text-sm font-medium text-text-main">Success!</p>
+        <p class="mt-1 text-sm text-text-muted">Operation successful.</p>
+      </div>
+      <div class="ml-4 flex-shrink-0 flex">
+        <button class="bg-transparent rounded-md inline-flex text-text-muted hover:text-text-main focus:outline-none" onclick="hideToast()">
+          <span class="sr-only">Close</span>
+          <svg class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+            <path fill-rule="evenodd" d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z" clip-rule="evenodd" />
+          </svg>
+        </button>
+      </div>
+    </div>
+
+    <div class="w-full max-w-md bg-surface rounded-xl shadow-lg p-8 border border-border">
+      <div class="text-center mb-8">
+        <img src="/logo.png" alt="CareToken" class="h-12 w-auto mx-auto mb-4">
+        <h1 class="text-2xl font-bold text-text-main mb-2">Welcome Back</h1>
+        <p class="text-text-muted text-sm">Login to manage your clinic</p>
+      </div>
+
+      <form id="loginForm" class="space-y-5">
+        <div>
+          <label for="clinicName" class="block text-sm font-medium text-text-main mb-1">Clinic Slug</label>
+          <input type="text" id="clinicName" name="clinicName" required value="test-clinic-j-6797"
+            class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+            placeholder="e.g. Sunrise Hospital">
+        </div>
+
+        <div>
+          <label for="username" class="block text-sm font-medium text-text-main mb-1">Username</label>
+          <input type="text" id="username" name="username" required value="testclinic9088"
+            class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+            placeholder="admin_user">
+        </div>
+
+        <div>
+          <label for="password" class="block text-sm font-medium text-text-main mb-1">Password</label>
+          <input type="password" id="password" name="password" required value="Fancy-Hawk-073"
+            class="w-full px-4 py-2 border border-border rounded-lg focus:ring-2 focus:ring-primary focus:border-transparent outline-none transition-all text-sm"
+            placeholder="••••••••">
+        </div>
+
+        <button type="submit"
+          class="w-full bg-primary hover:bg-primary-dark text-white font-medium py-2.5 rounded-lg transition-colors shadow-sm text-sm">
+          Sign In
+        </button>
+      </form>
+
+      <div class="mt-6 text-center text-sm text-text-muted">
+        Don't have an account? 
+        <a href="/register.html" class="text-primary hover:text-primary-dark font-medium">Register Clinic</a>
+      </div>
+    </div>
+    <script type="module" src="/main.js"></script>
+    <script>
+      const loginForm = document.getElementById('loginForm');
+      const submitBtn = loginForm.querySelector('button[type="submit"]');
+
+      // Toast Logic
+      function showToast(message, type = 'success') {
+        const toast = document.getElementById('toast');
+        const title = toast.querySelector('p.font-medium');
+        const desc = toast.querySelector('p.text-text-muted');
+        const iconContainer = toast.querySelector('div.flex-shrink-0');
+        
+        desc.textContent = message;
+
+        if (type === 'error') {
+          title.textContent = 'Error';
+          title.className = 'text-sm font-medium text-red-600';
+          iconContainer.innerHTML = `
+            <svg class="h-10 w-10 text-red-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+        } else {
+          title.textContent = 'Success!';
+          title.className = 'text-sm font-medium text-text-main';
+          iconContainer.innerHTML = `
+            <svg class="h-10 w-10 text-green-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>`;
+        }
+
+        toast.classList.remove('translate-x-full');
+        setTimeout(() => {
+          hideToast();
+        }, 3000);
+      }
+
+      window.hideToast = () => {
+        const toast = document.getElementById('toast');
+        toast.classList.add('translate-x-full');
+      };
+
+      loginForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const clinicSlug = document.getElementById('clinicName').value;
+        const username = document.getElementById('username').value;
+        const password = document.getElementById('password').value;
+
+        try {
+          submitBtn.disabled = true;
+          submitBtn.textContent = 'Signing In...';
+
+          const response = await fetch('/api/v1/auth/login', {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+              clinic_slug: clinicSlug,
+              username: username,
+              password: password
+            })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            
+            // Store session data
+            localStorage.setItem('accessToken', data.access_token);
+            localStorage.setItem('userRole', data.user.role);
+            localStorage.setItem('userName', data.user.name);
+            localStorage.setItem('selectedTenantId', data.user.clinic_id);
+            localStorage.setItem('selectedClinicName', data.user.clinic_name);
+            
+            showToast('Login successful! Redirecting...', 'success');
+            setTimeout(() => {
+                window.location.href = '/dashboard.html';
+            }, 1000);
+          } else {
+            let errorMessage = 'Invalid credentials';
+            try {
+                const errorData = await response.json();
+                errorMessage = errorData.detail ? JSON.stringify(errorData.detail) : errorMessage;
+            } catch (e) {
+                // If JSON parse fails, use status text
+                errorMessage = `Server Error (${response.status}: ${response.statusText})`;
+                const text = await response.text();
+                if (text && text.length < 100) errorMessage += ` - ${text}`;
+            }
+            showToast('Login failed: ' + errorMessage, 'error');
+          }
+        } catch (error) {
+          console.error('Error:', error);
+          showToast('An error occurred. Please try again.', 'error');
+        } finally {
+          submitBtn.disabled = false;
+          submitBtn.textContent = 'Sign In';
+        }
+      });
+    </script>
+  </body>
+</html>
