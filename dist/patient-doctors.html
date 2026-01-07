@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/vite.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Select Doctor - CareToken</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <script type="module" crossorigin src="/assets/main-BTBPOQB7.js"></script>
+    <link rel="stylesheet" crossorigin href="/assets/main-wkl5NDq_.css">
+  </head>
+  <body class="bg-background min-h-screen flex flex-col">
+    <!-- Header -->
+    <header class="h-16 bg-surface border-b border-border flex items-center justify-between px-4 md:px-6 sticky top-0 z-10">
+      <div class="flex items-center">
+        <a href="/select-city.html" class="flex items-center text-lg md:text-xl font-bold text-primary hover:text-primary-dark transition-colors">
+          <img src="/logo.png" alt="CareToken" class="h-6 md:h-8 w-auto mr-2">
+          CareToken
+        </a>
+      </div>
+      <div class="flex items-center space-x-3 md:space-x-6">
+        <a href="/my-bookings.html" class="text-sm font-medium text-primary hover:text-primary-dark transition-colors">
+          <span class="hidden md:inline">My Bookings</span>
+          <span class="md:hidden">Bookings</span>
+        </a>
+        <div class="hidden md:flex items-center space-x-2 text-sm">
+          <svg class="w-4 h-4 text-text-muted" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 5a2 2 0 012-2h3.28a1 1 0 01.948.684l1.498 4.493a1 1 0 01-.502 1.21l-2.257 1.13a11.042 11.042 0 005.516 5.516l1.13-2.257a1 1 0 011.21-.502l4.493 1.498a1 1 0 01.684.949V19a2 2 0 01-2 2h-1C9.716 21 3 14.284 3 6V5z"></path></svg>
+          <span class="font-medium text-text-main" id="userMobileDisplay"></span>
+        </div>
+        <button id="logoutBtn" class="text-sm font-medium text-red-500 hover:text-red-700 transition-colors flex items-center">
+          <span class="hidden md:inline">Logout</span>
+          <svg class="w-5 h-5 md:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path></svg>
+        </button>
+      </div>
+    </header>
+
+    <main class="flex-1 container mx-auto px-4 py-8 max-w-4xl">
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-text-main mb-2">Doctors at <span id="clinicName" class="text-primary">...</span></h1>
+        <p class="text-text-muted">Select a doctor to book an appointment</p>
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 gap-6" id="doctorsList">
+        <!-- Doctors will be populated here -->
+      </div>
+    </main>
+
+    <script>
+      // Check auth
+      const userMobile = localStorage.getItem('userMobile');
+      if (userMobile) {
+        document.getElementById('userMobileDisplay').textContent = userMobile;
+      }
+
+      document.getElementById('logoutBtn').addEventListener('click', () => {
+        localStorage.removeItem('userMobile');
+        window.location.href = '/patient-login.html';
+      });
+
+      const selectedClinicId = localStorage.getItem('selectedClinicId');
+      const selectedClinicName = localStorage.getItem('selectedClinicName');
+      // Use tenant_id if available, otherwise fallback to clinicId
+      const tenantId = localStorage.getItem('selectedTenantId') || selectedClinicId;
+
+      if (!tenantId) {
+        window.location.href = '/clinics.html';
+      }
+
+      document.getElementById('clinicName').textContent = selectedClinicName;
+
+      const listContainer = document.getElementById('doctorsList');
+
+      async function fetchDoctors() {
+        try {
+          listContainer.innerHTML = `
+            <div class="col-span-full text-center py-12">
+              <div class="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto"></div>
+              <p class="text-text-muted mt-2">Loading doctors...</p>
+            </div>
+          `;
+
+          const response = await fetch(`/api/v1/doctors/${tenantId}/list`, {
+             headers: {
+              'Authorization': `Bearer ${localStorage.getItem('userToken')}`
+            }
+          });
+          if (!response.ok) throw new Error('Failed to fetch doctors');
+          
+          const doctors = await response.json();
+          renderDoctors(doctors);
+        } catch (error) {
+          console.error('Error:', error);
+          listContainer.innerHTML = `
+            <div class="col-span-full text-center py-8">
+              <p class="text-red-500 mb-2">Failed to load doctors</p>
+              <button onclick="fetchDoctors()" class="text-primary hover:underline">Try Again</button>
+            </div>
+          `;
+        }
+      }
+
+      function renderDoctors(doctors) {
+        if (!doctors || doctors.length === 0) {
+          listContainer.innerHTML = '<div class="col-span-full text-center py-12 text-text-muted">No doctors found for this clinic.</div>';
+          return;
+        }
+
+        listContainer.innerHTML = '';
+        doctors.forEach(doc => {
+          const card = document.createElement('div');
+          card.className = 'bg-surface rounded-xl shadow-sm border border-border p-6 hover:shadow-md transition-shadow flex flex-col';
+          
+          // Calculate experience if registration year is available
+          const experience = doc.registration_year ? (new Date().getFullYear() - doc.registration_year) + ' Years' : 'N/A';
+
+          card.innerHTML = `
+            <div class="flex items-start justify-between mb-4">
+              <div class="flex items-center">
+                <div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-lg mr-4">
+                  ${doc.name.split(' ').map(n => n[0]).join('').substring(0, 2)}
+                </div>
+                <div>
+                  <h3 class="text-lg font-bold text-text-main">${doc.name}</h3>
+                  <p class="text-sm text-text-muted">${doc.specialty || 'General'}</p>
+                </div>
+              </div>
+            </div>
+            
+            <div class="space-y-2 mb-6 flex-1">
+              <div class="flex justify-between text-sm">
+                <span class="text-text-muted">Degree:</span>
+                <span class="font-medium text-text-main">${doc.medical_degree || 'N/A'}</span>
+              </div>
+              <div class="flex justify-between text-sm">
+                <span class="text-text-muted">Experience:</span>
+                <span class="font-medium text-text-main">${experience}</span>
+              </div>
+            </div>
+
+              <div class="flex items-center justify-end pt-4 border-t border-border">
+                <button onclick="bookAppointment('${doc.id}', '${doc.name}')" 
+                  class="bg-primary hover:bg-primary-dark text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors shadow-sm">
+                  Book Appointment
+                </button>
+              </div>
+          `;
+          listContainer.appendChild(card);
+        });
+      }
+
+      window.bookAppointment = (id, name) => {
+        localStorage.setItem('selectedDoctorId', id);
+        localStorage.setItem('selectedDoctorName', name);
+        window.location.href = '/book-appointment.html';
+      };
+
+      fetchDoctors();
+    </script>
+  </body>
+</html>
