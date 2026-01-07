@@ -28,7 +28,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api': {
-        target: 'https://caretoken-backend.online',
+        target: 'https://www.caretoken-backend.online',
         changeOrigin: true,
         secure: false,
       },
